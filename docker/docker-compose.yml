@@ -9,7 +9,7 @@ services:
             - ./nginx/logs:/var/log/nginx/horario
             - ../.:/var/www/html
         ports:
-            - "8080:80"
+            - "80:80"
         networks:
             - local
 
@@ -32,10 +32,34 @@ services:
         networks:
             - local
 
+    elasticsearch:
+        build: elasticsearch/
+        volumes:
+            - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+            - elasticsearch:/usr/share/elasticsearch/data
+        ports:
+            - "9200:9200"
+            - "9300:9300"
+        networks:
+            - local
+
+    kibana:
+        build:  kibana/
+        volumes:
+            - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+        ports:
+            - "81:5601"
+        depends_on:
+            - elasticsearch
+        networks:
+            - local
+
 volumes:
     database:
         driver: local
     composer_cache:
+        driver: local
+    elasticsearch:
         driver: local
 
 networks:
