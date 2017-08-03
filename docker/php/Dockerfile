@@ -3,11 +3,19 @@ FROM php:7-fpm
 ADD ./conf /usr/local/etc/php/conf.d
 
 # Install services
-# OBS: curl, zip and git are services used by composer
 RUN apt-get update \
-    && apt-get install vim -y \
-    && apt-get install apt-utils -y \
-    && apt-get install curl git zip -y
+    && apt-get install -y \
+    vim \
+    apt-utils \
+    curl \
+    git \
+    zip \
+    libicu-dev \
+    zlib1g-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng12-dev \
+    g++
 
 # Install composer
 RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
@@ -17,11 +25,13 @@ RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
     && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --snapshot \
     && rm -f /tmp/composer-setup.*
 
-RUN apt-get install -y zlib1g-dev libicu-dev g++
-
 RUN docker-php-ext-install intl \
     && docker-php-ext-install opcache \
-    && docker-php-ext-install pdo_mysql
+    && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install exif
+
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+    && docker-php-ext-install gd
 
 # Install xdebug
 RUN pecl install xdebug
